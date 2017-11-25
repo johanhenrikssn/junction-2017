@@ -2,4 +2,4 @@
 
 ## Run bot
 
-`node bot/index.js --lt --ltsubdomain junction17`
+`npm run start` or `yarn start`
