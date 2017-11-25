@@ -70,10 +70,14 @@ const transactionPage = (link, acc = []) => (
 );
 
 app.get('/transactions', (req, res) => {
-  transactions(req.query.fromDate, req.query.toDate)
-    .then(transactions => {
-      res.send(transactions);
-    });
+  if (req.query.fromDate && req.query.toDate) {
+    transactions(req.query.fromDate, req.query.toDate)
+      .then(transactions => {
+        res.send(transactions);
+      });
+  } else {
+    res.send({ error: 'Parameters fromDate and toDate are required.' });
+  }
 });
 
 app.listen(app.get('port'), function() {
