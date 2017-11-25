@@ -6,6 +6,7 @@ const express = require('express');
 const { Agent } = require('https');
 const fetch = require('node-fetch');
 const flatMap = require('lodash/flatMap');
+const flatten = require('lodash/flatten');
 
 const app = express()
 
@@ -51,7 +52,7 @@ const transactions = (fromDate, toDate) => (
           .filter(link => link)
           .map(link => transactionPage(dateRangeLink(link, fromDate, toDate)))
       )
-    ))
+    )).then(flatten)
 );
 
 const transactionPage = (link, acc = []) => (
