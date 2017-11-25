@@ -1,70 +1,3 @@
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-           ______     ______     ______   __  __     __     ______
-          /\  == \   /\  __ \   /\__  _\ /\ \/ /    /\ \   /\__  _\
-          \ \  __<   \ \ \/\ \  \/_/\ \/ \ \  _"-.  \ \ \  \/_/\ \/
-           \ \_____\  \ \_____\    \ \_\  \ \_\ \_\  \ \_\    \ \_\
-            \/_____/   \/_____/     \/_/   \/_/\/_/   \/_/     \/_/
-
-
-This is a sample Facebook bot built with Botkit.
-
-This bot demonstrates many of the core features of Botkit:
-
-* Connect to Facebook's Messenger APIs
-* Receive messages based on "spoken" patterns
-* Reply to messages
-* Use the conversation system to ask questions
-* Use the built in storage system to store and retrieve information
-  for a user.
-
-# RUN THE BOT:
-
-  Follow the instructions here to set up your Facebook app and page:
-
-    -> https://developers.facebook.com/docs/messenger-platform/implementation
-
-  Run your bot from the command line:
-
-    app_secret=<MY APP SECRET> page_token=<MY PAGE TOKEN> verify_token=<MY_VERIFY_TOKEN> node facebook_bot.js [--lt [--ltsubdomain LOCALTUNNEL_SUBDOMAIN]]
-
-  Use the --lt option to make your bot available on the web through localtunnel.me.
-
-# USE THE BOT:
-
-  Find your bot inside Facebook to send it a direct message.
-
-  Say: "Hello"
-
-  The bot will reply "Hello!"
-
-  Say: "who are you?"
-
-  The bot will tell you its name, where it running, and for how long.
-
-  Say: "Call me <nickname>"
-
-  Tell the bot your nickname. Now you are friends.
-
-  Say: "who am I?"
-
-  The bot will tell you your nickname, if it knows one for you.
-
-  Say: "shutdown"
-
-  The bot will ask if you are sure, and then shut itself down.
-
-  Make sure to invite your bot into other channels using /invite @<my bot>!
-
-# EXTEND THE BOT:
-
-  Botkit has many features for building cool and useful bots!
-
-  Read all about it here:
-
-    -> http://howdy.ai/botkit
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -83,10 +16,10 @@ if (!process.env.app_secret) {
 	process.exit(1);
 }
 
-var Botkit = require('botkit');
-var os = require('os');
-var commandLineArgs = require('command-line-args');
-var localtunnel = require('localtunnel');
+const Botkit = require('botkit');
+const os = require('os');
+const commandLineArgs = require('command-line-args');
+const localtunnel = require('localtunnel');
 
 const ops = commandLineArgs([
 	{
@@ -154,46 +87,13 @@ controller.setupWebserver(process.env.port || 3000, function(err, webserver) {
 	});
 });
 
-controller.hears(['attachment_upload'], 'message_received', function(
-	bot,
-	message
-) {
-	var attachment = {
-		type: 'image',
-		payload: {
-			url:
-				'https://pbs.twimg.com/profile_images/803642201653858305/IAW1DBPw_400x400.png',
-			is_reusable: true
-		}
-	};
-
-	controller.api.attachment_upload.upload(attachment, function(
-		err,
-		attachmentId
-	) {
-		if (err) {
-			// Error
-		} else {
-			var image = {
-				attachment: {
-					type: 'image',
-					payload: {
-						attachment_id: attachmentId
-					}
-				}
-			};
-			bot.reply(message, image);
-		}
-	});
-});
-
 controller.api.nlp.enable();
 controller.api.messenger_profile.greeting("Hello! I'm a Botkit bot!");
 controller.api.messenger_profile.get_started('sample_get_started_payload');
 controller.api.messenger_profile.menu([
 	{
 		locale: 'default',
-		composer_input_disabled: true,
+		composer_input_disabled: false,
 		call_to_actions: [
 			{
 				title: 'My Skills',
@@ -225,41 +125,6 @@ controller.api.messenger_profile.menu([
 	}
 ]);
 
-// controller.api.messenger_profile.account_linking('https://www.yourAwesomSite.com/oauth?response_type=code&client_id=1234567890&scope=basic');
-// controller.api.messenger_profile.get_account_linking(function (err, accountLinkingUrl)  {
-//     console.log('****** Account linkink URL :', accountLinkingUrl);
-// });
-// controller.api.messenger_profile.delete_account_linking();
-// controller.api.messenger_profile.domain_whitelist('https://localhost');
-// controller.api.messenger_profile.domain_whitelist(['https://127.0.0.1', 'https://0.0.0.0']);
-// controller.api.messenger_profile.delete_domain_whitelist('https://localhost');
-// controller.api.messenger_profile.delete_domain_whitelist(['https://127.0.0.1', 'https://0.0.0.0']);
-// controller.api.messenger_profile.get_domain_whitelist(function (err, data)  {
-//     console.log('****** Whitelisted domains :', data);
-// });
-
-// returns the bot's messenger code image
-controller.hears(['code'], 'message_received,facebook_postback', function(
-	bot,
-	message
-) {
-	controller.api.messenger_profile.get_messenger_code(2000, function(err, url) {
-		if (err) {
-			// Error
-		} else {
-			var image = {
-				attachment: {
-					type: 'image',
-					payload: {
-						url: url
-					}
-				}
-			};
-			bot.reply(message, image);
-		}
-	});
-});
-
 controller.hears(['quick'], 'message_received', function(bot, message) {
 	bot.reply(message, {
 		text: 'Hey! This message has some quick replies attached.',
@@ -282,6 +147,7 @@ controller.hears(
 	['^hello', '^hi'],
 	'message_received,facebook_postback',
 	function(bot, message) {
+		console.log('hello');
 		controller.storage.users.get(message.user, function(err, user) {
 			if (user && user.name) {
 				bot.reply(message, 'Hello ' + user.name + '!!');
@@ -291,26 +157,6 @@ controller.hears(
 		});
 	}
 );
-
-controller.hears(['silent push reply'], 'message_received', function(
-	bot,
-	message
-) {
-	reply_message = {
-		text:
-			'This message will have a push notification on a mobile phone, but no sound notification',
-		notification_type: 'SILENT_PUSH'
-	};
-	bot.reply(message, reply_message);
-});
-
-controller.hears(['no push'], 'message_received', function(bot, message) {
-	reply_message = {
-		text: 'This message will not have any push notification on a mobile phone',
-		notification_type: 'NO_PUSH'
-	};
-	bot.reply(message, reply_message);
-});
 
 controller.hears(['structured'], 'message_received', function(bot, message) {
 	bot.startConversation(message, function(err, convo) {
@@ -384,7 +230,7 @@ controller.hears(['structured'], 'message_received', function(bot, message) {
 });
 
 controller.on('facebook_postback', function(bot, message) {
-	// console.log(bot, message);
+	//console.log(bot, message);
 	bot.reply(message, 'Great Choice!!!! (' + message.payload + ')');
 });
 
