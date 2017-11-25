@@ -80,6 +80,32 @@ app.get('/transactions', (req, res) => {
   }
 });
 
+app.get('/balance', (req, res) => {
+  if (req.query.currentDate) {
+    const lastPay = getLastPaydate(req.query.currentDate);
+    transactions(lastPay, req.query.currentDate)
+      .then(transactions => {
+        res.send({ balance: transactions.reduce((acc, item) => acc + Number(item.amount), 0) });
+      });
+  } else {
+    res.send({ error: 'Parameters currentDate required.' });
+  }
+});
+
+const getLastPaydate = (dateString) => {
+  const currentDate = new Date(dateString);
+  let lastPay = new Date(dateString);
+
+  const isSameMonth = currentDate.getDate() > 25;
+  if (!isSameMonth) {
+    lastPay.setMonth(currentDate.getMonth() - 1);
+  }
+
+  lastPay.setDate(26);
+
+  return lastPay.toJSON().substr(0, 10);
+}
+
 app.listen(app.get('port'), function() {
   console.log('running on port', app.get('port'))
 })
