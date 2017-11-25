@@ -47,6 +47,28 @@ const transactionPage = (link, acc = []) => (
     })
 );
 
+const balance = () => (
+  fetch(`${BASE_URL}/v2/accounts`, DEFAULT_OPTIONS)
+    .then(data => data.json())
+    .then(data => (
+      data.response.accounts
+        .filter(account => account._links.find(link => link.rel === 'transactions'))
+        .map(account => account.availableBalance)
+        .reduce((acc, balance) => acc + Number(balance), 0).toFixed(2)
+    ))
+);
+
+const budgetBalance = (currentDate) => {
+  if (currentDate) {
+    const fromDate = lastPayDate(currentDate);
+    return transactions(fromDate, currentDate)
+      .then(transactions => (
+        transactions.reduce((acc, item) => acc + Number(item.amount), 0).toFixed(2)
+      ));
+  }
+  throw new Error('Parameter currentDate is required.');
+};
+
 const transactions = (fromDate, toDate) => (
   fetch(`${BASE_URL}/v2/accounts`, DEFAULT_OPTIONS)
     .then(data => data.json())
@@ -60,18 +82,8 @@ const transactions = (fromDate, toDate) => (
     )).then(flatten)
 );
 
-const balance = (currentDate) => {
-  if (currentDate) {
-    const fromDate = lastPayDate(currentDate);
-    return transactions(fromDate, currentDate)
-      .then(transactions => (
-        transactions.reduce((acc, item) => acc + Number(item.amount), 0).toFixed(2)
-      ));
-  }
-  throw new Error('Parameter currentDate is required.');
-};
-
 module.export = {
   balance,
+  budgetBalance,
   transactions,
 };
