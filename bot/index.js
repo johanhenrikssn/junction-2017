@@ -278,11 +278,8 @@ const getDailyGoalBudget = async message =>
     if (user && user.goal) {
       var today = new Date().toISOString().split('T')[0];
       var balance = await dailyBudget(today);
-      const DAYS_LEFT_OF_MONTH = 10;
-      // ToDo: Round
-      // Days left
-      // Check that it works
-      const budget = balance - parseFloat(user.goal) / DAYS_LEFT_OF_MONTH;
+      const daysLeft = daysLeftOfMonth(today);
+      const budget = (balance - parseFloat(user.goal)) / daysLeft;
       return budget;
     }
   });
