@@ -1,5 +1,10 @@
 const dotenv = require('dotenv');
 const schedule = require('node-schedule');
+const Botkit = require('botkit');
+const os = require('os');
+const commandLineArgs = require('command-line-args');
+const localtunnel = require('localtunnel');
+
 const { balance, budgetBalance, transactions } = require('../');
 
 var j = schedule.scheduleJob('45 * * * * *', function() {
@@ -22,11 +27,6 @@ if (!process.env.app_secret) {
 	console.log('Error: Specify app_secret in environment');
 	process.exit(1);
 }
-
-const Botkit = require('botkit');
-const os = require('os');
-const commandLineArgs = require('command-line-args');
-const localtunnel = require('localtunnel');
 
 const ops = commandLineArgs([
 	{
