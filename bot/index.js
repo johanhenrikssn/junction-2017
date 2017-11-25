@@ -127,19 +127,14 @@ controller.api.messenger_profile.menu([
 
 controller.on('facebook_postback', async (bot, message) => {
   schedule.scheduleJob('45 * * * * *', async () => {
-    controller.storage.users.get(message.user, async (err, user) => {
-      if (user && user.goal) {
-        var today = new Date().toISOString().split('T')[0];
-        var balance = await dailyBudget(today);
-        var money = balance; // - user.goal///REMAINING_DAYS;
+        var balance = await getDailyGoalBudget(message);
         bot.reply(
           message,
           `You can spend ${
-            money
+            balance
           } today, and reach your monthly goal. 💪 Great job!`
-        );
-      }
-    });
+        )
+      })
   });
 
   bot.startConversation(message, function(err, convo) {
@@ -279,7 +274,7 @@ controller.hears(
   }
 );
 
-const getDailyGoalBudget = async controller =>
+const getDailyGoalBudget = async (message) =>
   await controller.storage.users.get(message.user, async (err, user) => {
     if (user && user.goal) {
       var today = new Date().toISOString().split('T')[0];
@@ -306,7 +301,7 @@ controller.hears(
   ['show daily budget'],
   'message_received',
   async (bot, message) => {
-    const dailyGoalBudget = await getDailyGoalBudget();
+    const dailyGoalBudget = await getDailyGoalBudget(message);
     bot.reply(
       message,
       `Your have ${dailyGoalBudget} to spend today to reach your goal.`
