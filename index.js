@@ -39,7 +39,9 @@ app.get('/accounts', (req, res) => {
     });
 });
 
-const transactions = () => (
+const dateRangeLink = (link, fromDate, toDate) => `${BASE_URL}${link.href}?fromDate=${fromDate}&toDate=${toDate}`;
+
+const transactions = (fromDate, toDate) => (
   fetch(`${BASE_URL}/v2/accounts`, DEFAULT_OPTIONS)
     .then(data => data.json())
     .then(data => (
@@ -47,16 +49,27 @@ const transactions = () => (
         data.response.accounts
           .map(account => account._links.find(link => link.rel === 'transactions'))
           .filter(link => link)
-          .map(link => {
-            return fetch(`${BASE_URL}${link.href}`, DEFAULT_OPTIONS)
-              .then(data => data.json())
-          })
+          .map(link => transactionPage(dateRangeLink(link, fromDate, toDate)))
       )
-    )).then(accounts => flatMap(accounts, account => account.response.transactions))
+    ))
+);
+
+const transactionPage = (link, acc = []) => (
+  fetch(link, DEFAULT_OPTIONS)
+    .then(data => data.json())
+    .then(data => {
+      const linkObject = data.response._links.find(link => link.rel === "next");
+      if (!linkObject) {
+        return acc;
+      }
+      const continuationLink = linkObject.href;
+      const newLink = continuationLink.replace(/\/v2\/accounts\/FI(\w+)/, '/v2/accounts/FI$1-EUR');
+      return transactionPage(`${BASE_URL}${newLink}`, acc.concat(data.response.transactions));
+    })
 );
 
 app.get('/transactions', (req, res) => {
-  transactions()
+  transactions(req.query.fromDate, req.query.toDate)
     .then(transactions => {
       res.send(transactions);
     });
