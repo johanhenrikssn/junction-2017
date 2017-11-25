@@ -5,7 +5,7 @@ const os = require('os');
 const commandLineArgs = require('command-line-args');
 const localtunnel = require('localtunnel');
 
-const { balance, budgetBalance, transactions } = require('../');
+const { balance, budgetBalance, transactions, dailyBudget } = require('../');
 
 dotenv.config();
 
@@ -124,7 +124,7 @@ controller.on('facebook_postback', async (bot, message) => {
     controller.storage.users.get(message.user, async (err, user) => {
       if (user && user.goal) {
         var today = new Date().toISOString().split('T')[0];
-        var balance = await budgetBalance(today);
+        var balance = await dailyBudget(today);
         var money = balance - user.goal;
         bot.reply(
           message,
