@@ -118,5 +118,6 @@ module.exports = {
   balance,
   budgetBalance,
   transactions,
-  dailyBudget
+  dailyBudget,
+  daysLeftOfMonth
 };

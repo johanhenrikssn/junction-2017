@@ -273,16 +273,24 @@ controller.hears(
   }
 );
 
-const getDailyGoalBudget = async message =>
-  await controller.storage.users.get(message.user, async (err, user) => {
+const getDailyGoalBudget = async message => {
+  return controller.storage.users.get(message.user, (err, user) => {
+    console.log({ user, err });
     if (user && user.goal) {
+      console.log('user && user.goal');
       var today = new Date().toISOString().split('T')[0];
-      var balance = await dailyBudget(today);
-      const daysLeft = daysLeftOfMonth(today);
-      const budget = (balance - parseFloat(user.goal)) / daysLeft;
-      return budget;
+      return dailyBudget(today)
+        .then(balance => {
+          console.log(balance);
+          const daysLeft = daysLeftOfMonth(today);
+          console.log(daysLeft);
+          const budget = (balance - parseFloat(user.goal)) / daysLeft;
+          return budget;
+        })
+        .catch(e => console.error(e));
     }
   });
+};
 
 controller.hears(
   ['balance', 'Balance'],
@@ -297,7 +305,13 @@ controller.hears(
   ['show daily budget'],
   'message_received',
   async (bot, message) => {
-    const dailyGoalBudget = await getDailyGoalBudget(message);
+    console.log('in daily');
+    try {
+      const dailyGoalBudget = await getDailyGoalBudget(message);
+    } catch (e) {
+      console.error(e);
+    }
+    console.log('out daily');
     bot.reply(
       message,
       `Your have ${dailyGoalBudget} to spend today to reach your goal.`
