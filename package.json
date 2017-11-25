@@ -1,24 +1,23 @@
 {
-  "name": "junction-2017",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/johanhenrikssn/junction-2017.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/johanhenrikssn/junction-2017/issues"
-  },
-  "homepage": "https://github.com/johanhenrikssn/junction-2017#readme",
-  "dependencies": {
-    "body-parser": "^1.18.2",
-    "dotenv": "^4.0.0",
-    "express": "^4.16.2"
-  }
+	"name": "junction-2017",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/johanhenrikssn/junction-2017.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/johanhenrikssn/junction-2017/issues"
+	},
+	"homepage": "https://github.com/johanhenrikssn/junction-2017#readme",
+	"dependencies": {
+		"botkit": "^0.5.8",
+		"dotenv": "^4.0.0"
+	}
 }
