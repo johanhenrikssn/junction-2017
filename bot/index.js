@@ -1,5 +1,6 @@
 const dotenv = require('dotenv');
-var schedule = require('node-schedule');
+const schedule = require('node-schedule');
+const { balance, budgetBalance, transactions } = require('../');
 
 var j = schedule.scheduleJob('45 * * * * *', function() {
 	console.log('The answer to life, the universe, and everything!');
@@ -264,3 +265,12 @@ controller.on('message_received', function(bot, message) {
 	);
 	return false;
 });
+
+controller.hears(
+	['balance', 'Balance'],
+	'message_received',
+	async (bot, message) => {
+		const currentBalance = await balance();
+		bot.reply(message, `Your balance is ${currentBalance}.`);
+	}
+);
