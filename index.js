@@ -58,7 +58,6 @@ const transactionPage = (link, acc = []) => (
   fetch(link, DEFAULT_OPTIONS)
     .then(data => data.json())
     .then(data => {
-      console.log(data)
       const linkObject = data.response._links.find(link => link.rel === "next");
       if (!linkObject) {
         return acc;
