@@ -1,4 +1,10 @@
 const dotenv = require('dotenv');
+var schedule = require('node-schedule');
+
+var j = schedule.scheduleJob('45 * * * * *', function() {
+	console.log('The answer to life, the universe, and everything!');
+});
+
 dotenv.config();
 
 if (!process.env.page_token) {
