@@ -33,6 +33,17 @@ const lastPayDate = (dateString) => {
   return lastPay.toJSON().substr(0, 10);
 }
 
+const daysLeftOfMonth = (dateString) => {
+  const currentDate = new Date(dateString);
+  let nextPayDate = new Date(dateString);
+  const isSameMonth = currentDate.getDate() > 25;
+  if (isSameMonth) {
+    nextPayDate.setMonth(currentDate.getMonth() + 1);
+  }
+  nextPayDate.setDate(26);
+  return (nextPayDate.getTime() - currentDate.getTime()) / (3600 * 24 * 1000);
+}
+
 const transactionPage = (link, acc = []) => (
   fetch(link, DEFAULT_OPTIONS)
     .then(data => data.json())
@@ -82,8 +93,18 @@ const transactions = (fromDate, toDate) => (
     )).then(flatten)
 );
 
+const dailyBudget = (currentDate) => {
+  if (currentDate) {
+    const daysLeft = daysLeftOfMonth(currentDate);
+    return budgetBalance(currentDate)
+      .then(dailyBudget => (dailyBudget / daysLeft).toFixed(2));
+  }
+  throw new Error('Parameter currentDate is required.');
+};
+
 module.export = {
   balance,
   budgetBalance,
   transactions,
+  dailyBudget,
 };
