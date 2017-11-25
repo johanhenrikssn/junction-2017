@@ -102,7 +102,7 @@ const dailyBudget = (currentDate) => {
   throw new Error('Parameter currentDate is required.');
 };
 
-module.export = {
+module.exports = {
   balance,
   budgetBalance,
   transactions,
