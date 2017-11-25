@@ -5,7 +5,13 @@ const os = require('os');
 const commandLineArgs = require('command-line-args');
 const localtunnel = require('localtunnel');
 
-const { balance, budgetBalance, transactions, dailyBudget } = require('../');
+const {
+  balance,
+  budgetBalance,
+  transactions,
+  dailyBudget,
+  daysLeftOfMonth
+} = require('../');
 
 dotenv.config();
 
@@ -125,7 +131,7 @@ controller.on('facebook_postback', async (bot, message) => {
       if (user && user.goal) {
         var today = new Date().toISOString().split('T')[0];
         var balance = await dailyBudget(today);
-        var money = balance - user.goal;
+        var money = balance; // - user.goal///REMAINING_DAYS;
         bot.reply(
           message,
           `You can spend ${
@@ -270,5 +276,40 @@ controller.hears(
   async (bot, message) => {
     const currentBalance = await balance();
     bot.reply(message, `Your balance is ${currentBalance}.`);
+  }
+);
+
+const getDailyGoalBudget = async controller =>
+  await controller.storage.users.get(message.user, async (err, user) => {
+    if (user && user.goal) {
+      var today = new Date().toISOString().split('T')[0];
+      var balance = await dailyBudget(today);
+      const DAYS_LEFT_OF_MONTH = 10;
+      // ToDo: Round
+      // Days left
+      // Check that it works
+      const budget = balance - parseFloat(user.goal) / DAYS_LEFT_OF_MONTH;
+      return budget;
+    }
+  });
+
+controller.hears(
+  ['balance', 'Balance'],
+  'message_received',
+  async (bot, message) => {
+    const currentBalance = await balance();
+    bot.reply(message, `Your balance is ${currentBalance}.`);
+  }
+);
+
+controller.hears(
+  ['show daily budget'],
+  'message_received',
+  async (bot, message) => {
+    const dailyGoalBudget = await getDailyGoalBudget();
+    bot.reply(
+      message,
+      `Your have ${dailyGoalBudget} to spend today to reach your goal.`
+    );
   }
 );
