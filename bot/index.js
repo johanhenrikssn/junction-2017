@@ -134,9 +134,12 @@ controller.on('facebook_postback', async (bot, message) => {
         var today = new Date().toISOString().split('T')[0];
         return dailyBudget(today)
           .then(balance => {
-            console.log(balance);
+            console.log('bal', balance);
             const daysLeft = daysLeftOfMonth(today);
-            console.log(daysLeft);
+            console.log('day', daysLeft);
+            console.log('goal unparsed', user.goal);
+            console.log('parsed', parseFloat(user.goal));
+            console.log('bal', balance - parseFloat(user.goal));
             const budget = Math.round(
               (balance - parseFloat(user.goal)) / daysLeft
             );
@@ -302,7 +305,6 @@ controller.hears(
   ['show daily budget'],
   'message_received',
   async (bot, message) => {
-    console.log('in daily');
     try {
       controller.storage.users.get(message.user, (err, user) => {
         console.log({ user, err });
@@ -311,9 +313,12 @@ controller.hears(
           var today = new Date().toISOString().split('T')[0];
           return dailyBudget(today)
             .then(balance => {
-              console.log(balance);
+              console.log('bal', balance);
               const daysLeft = daysLeftOfMonth(today);
-              console.log(daysLeft);
+              console.log('day', daysLeft);
+              console.log('goal unparsed', user.goal);
+              console.log('parsed', parseFloat(user.goal));
+              console.log('bal', balance - parseFloat(user.goal));
               const budget = Math.round(
                 (balance - parseFloat(user.goal)) / daysLeft
               );
