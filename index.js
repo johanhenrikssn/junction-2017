@@ -80,11 +80,11 @@ const balance = () =>
 const budgetBalance = currentDate => {
   if (currentDate) {
     const fromDate = lastPayDate(currentDate);
-    return transactions(fromDate, currentDate).then(transactions =>
-      transactions
+    return transactions(fromDate, currentDate).then(transactions => {
+      return transactions
         .reduce((acc, item) => acc + Number(item.amount), 0)
         .toFixed(2)
-    );
+    });
   }
   throw new Error('Parameter currentDate is required.');
 };
@@ -119,21 +119,21 @@ const transactions = (fromDate, toDate) => (
           )
           .filter(link => link)
           .map(link => transactionsByDates(link, datesBetweenDates(fromDate, toDate)))
-      )
+      ).then(flatten)
     ).then(flatten)
 );
 
 const dailyBudget = currentDate => {
   if (currentDate) {
     const daysLeft = daysLeftOfMonth(currentDate);
-    return budgetBalance(currentDate).then(dailyBudget =>
-      (dailyBudget / daysLeft).toFixed(2)
-    );
+    return budgetBalance(currentDate).then(dailyBudget => {
+      return (dailyBudget / daysLeft).toFixed(2);
+    })
   }
   throw new Error('Parameter currentDate is required.');
 };
 
-transactions('2017-11-01', '2017-11-25').then(console.log);
+dailyBudget('2017-11-25').then(console.log);
 
 module.exports = {
   balance,
