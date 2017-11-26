@@ -144,7 +144,7 @@ controller.on('facebook_postback', async (bot, message) => {
               message,
               `You can spend ${
                 budget
-              } EUR today, and reach your monthly goal. 💪 Great job!`
+              }€ today, and reach your monthly goal. 💪 Great job!`
             );
           })
           .catch(e => console.error(e));
@@ -213,7 +213,7 @@ controller.on('facebook_postback', async (bot, message) => {
               message,
               'I will remind you every day, so that you reach your goal of saving ' +
                 user.goal +
-                ' EUR 💰💰💰'
+                '€ 💰💰💰'
             );
           });
         });
@@ -248,7 +248,7 @@ controller.hears(
       controller.storage.users.save(user, function(err, id) {
         bot.reply(
           message,
-          `Alright! Updated your saving goal to ${user.goal} EUR.`
+          `Alright! Updated your saving goal to ${user.goal}€.`
         );
       });
     });
@@ -285,7 +285,7 @@ controller.hears(
   'message_received',
   async (bot, message) => {
     const currentBalance = await balance();
-    bot.reply(message, `Your balance is ${currentBalance} EUR.`);
+    bot.reply(message, `Your balance is ${currentBalance}€.`);
   }
 );
 
@@ -294,7 +294,7 @@ controller.hears(
   'message_received',
   async (bot, message) => {
     const currentBalance = await balance();
-    bot.reply(message, `Your balance is ${currentBalance} EUR.`);
+    bot.reply(message, `Your balance is ${currentBalance}€.`);
   }
 );
 
@@ -319,7 +319,7 @@ controller.hears(
               );
               bot.reply(
                 message,
-                `Your have ${budget} EUR to spend today to reach your goal.`
+                `Your have ${budget}€ to spend today to reach your goal.`
               );
             })
             .catch(e => console.error(e));
