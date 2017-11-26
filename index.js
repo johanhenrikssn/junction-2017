@@ -100,8 +100,6 @@ const datesBetweenDates = (fromDateString, toDateString) => {
   return dates;
 }
 
-const dateRangeLink = (link, fromDate, toDate) => `${BASE_URL}${link.href}?fromDate=${fromDate}&toDate=${toDate}`;
-
 const transactionsByDates = (link, dates) => {
   return Promise.all(dates.map(date => (
     fetch(dateRangeLink(link, date, date), DEFAULT_OPTIONS)
@@ -122,8 +120,8 @@ const transactions = (fromDate, toDate) => (
           .filter(link => link)
           .map(link => transactionsByDates(link, datesBetweenDates(fromDate, toDate)))
       )
-    )
-    .then(flatten);
+    ).then(flatten)
+);
 
 const dailyBudget = currentDate => {
   if (currentDate) {
@@ -134,6 +132,8 @@ const dailyBudget = currentDate => {
   }
   throw new Error('Parameter currentDate is required.');
 };
+
+transactions('2017-11-01', '2017-11-25').then(console.log);
 
 module.exports = {
   balance,
