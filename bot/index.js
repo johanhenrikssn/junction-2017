@@ -127,13 +127,27 @@ controller.api.messenger_profile.menu([
 
 controller.on('facebook_postback', async (bot, message) => {
   schedule.scheduleJob('45 * * * * *', async () => {
-    var balance = await getDailyGoalBudget(message);
-    bot.reply(
-      message,
-      `You can spend ${
-        balance
-      } today, and reach your monthly goal. 💪 Great job!`
-    );
+    controller.storage.users.get(message.user, (err, user) => {
+      console.log({ user, err });
+      if (user && user.goal) {
+        console.log('user && user.goal');
+        var today = new Date().toISOString().split('T')[0];
+        return dailyBudget(today)
+          .then(balance => {
+            console.log(balance);
+            const daysLeft = daysLeftOfMonth(today);
+            console.log(daysLeft);
+            const budget = (balance - parseFloat(user.goal)) / daysLeft;
+            bot.reply(
+              message,
+              `You can spend ${
+                budget
+              } today, and reach your monthly goal. 💪 Great job!`
+            );
+          })
+          .catch(e => console.error(e));
+      }
+    });
   });
 
   bot.startConversation(message, function(err, convo) {
@@ -163,7 +177,7 @@ controller.on('facebook_postback', async (bot, message) => {
             convo.ask(
               "Cool, let's get started. 🤝 How much do you want to save this month?",
               function(response, convo) {
-                if (response.message.text) {
+                if (response && response.message && response.message.text) {
                   convo.next();
                 }
               },
@@ -273,25 +287,6 @@ controller.hears(
   }
 );
 
-const getDailyGoalBudget = async message => {
-  return controller.storage.users.get(message.user, (err, user) => {
-    console.log({ user, err });
-    if (user && user.goal) {
-      console.log('user && user.goal');
-      var today = new Date().toISOString().split('T')[0];
-      return dailyBudget(today)
-        .then(balance => {
-          console.log(balance);
-          const daysLeft = daysLeftOfMonth(today);
-          console.log(daysLeft);
-          const budget = (balance - parseFloat(user.goal)) / daysLeft;
-          return budget;
-        })
-        .catch(e => console.error(e));
-    }
-  });
-};
-
 controller.hears(
   ['balance', 'Balance'],
   'message_received',
@@ -307,14 +302,28 @@ controller.hears(
   async (bot, message) => {
     console.log('in daily');
     try {
-      const dailyGoalBudget = await getDailyGoalBudget(message);
+      controller.storage.users.get(message.user, (err, user) => {
+        console.log({ user, err });
+        if (user && user.goal) {
+          console.log('user && user.goal');
+          var today = new Date().toISOString().split('T')[0];
+          return dailyBudget(today)
+            .then(balance => {
+              console.log(balance);
+              const daysLeft = daysLeftOfMonth(today);
+              console.log(daysLeft);
+              const budget = (balance - parseFloat(user.goal)) / daysLeft;
+              bot.reply(
+                message,
+                `Your have ${budget} to spend today to reach your goal.`
+              );
+            })
+            .catch(e => console.error(e));
+        }
+      });
     } catch (e) {
       console.error(e);
     }
     console.log('out daily');
-    bot.reply(
-      message,
-      `Your have ${dailyGoalBudget} to spend today to reach your goal.`
-    );
   }
 );
