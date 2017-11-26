@@ -80,16 +80,35 @@ const balance = () =>
 const budgetBalance = currentDate => {
   if (currentDate) {
     const fromDate = lastPayDate(currentDate);
-    return transactions(fromDate, currentDate).then(transactions =>
-      transactions
+    return transactions(fromDate, currentDate).then(transactions => {
+      return transactions
         .reduce((acc, item) => acc + Number(item.amount), 0)
         .toFixed(2)
-    );
+    });
   }
   throw new Error('Parameter currentDate is required.');
 };
 
-const transactions = (fromDate, toDate) =>
+const datesBetweenDates = (fromDateString, toDateString) => {
+  const toDate = new Date(toDateString);
+  let itDate = new Date(fromDateString);
+  let dates = [];
+  while (itDate < toDate) {
+    itDate.setDate(itDate.getDate() + 1);
+    dates.push((new Date(itDate)).toISOString().split('T')[0])
+  }
+  return dates;
+}
+
+const transactionsByDates = (link, dates) => {
+  return Promise.all(dates.map(date => (
+    fetch(dateRangeLink(link, date, date), DEFAULT_OPTIONS)
+      .then(d => d.json())
+      .then(d => d.response.transactions)
+  ))).then(transactionsForDate => transactionsForDate.map(flatten))
+};
+
+const transactions = (fromDate, toDate) => (
   fetch(`${BASE_URL}/v2/accounts`, DEFAULT_OPTIONS)
     .then(data => data.json())
     .then(data =>
@@ -99,20 +118,22 @@ const transactions = (fromDate, toDate) =>
             account._links.find(link => link.rel === 'transactions')
           )
           .filter(link => link)
-          .map(link => transactionPage(dateRangeLink(link, fromDate, toDate)))
-      )
-    )
-    .then(flatten);
+          .map(link => transactionsByDates(link, datesBetweenDates(fromDate, toDate)))
+      ).then(flatten)
+    ).then(flatten)
+);
 
 const dailyBudget = currentDate => {
   if (currentDate) {
     const daysLeft = daysLeftOfMonth(currentDate);
-    return budgetBalance(currentDate).then(dailyBudget =>
-      (dailyBudget / daysLeft).toFixed(2)
-    );
+    return budgetBalance(currentDate).then(dailyBudget => {
+      return (dailyBudget / daysLeft).toFixed(2);
+    })
   }
   throw new Error('Parameter currentDate is required.');
 };
+
+dailyBudget('2017-11-25').then(console.log);
 
 module.exports = {
   balance,
