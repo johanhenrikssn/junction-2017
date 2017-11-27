@@ -115,7 +115,7 @@ controller.api.messenger_profile.menu([
       {
         type: 'web_url',
         title: 'Connect to Nordea',
-        url: 'http://nordeaopenbanking.com/'
+        url: 'http://hackathon.developer.nordeaopenbanking.com/'
       }
     ]
   },
@@ -126,7 +126,7 @@ controller.api.messenger_profile.menu([
 ]);
 
 controller.on('facebook_postback', async (bot, message) => {
-  schedule.scheduleJob('45 * * * * *', async () => {
+  /*schedule.scheduleJob('45 * * * * *', async () => {
     controller.storage.users.get(message.user, (err, user) => {
       console.log({ user, err });
       if (user && user.goal) {
@@ -153,7 +153,7 @@ controller.on('facebook_postback', async (bot, message) => {
           .catch(e => console.error(e));
       }
     });
-  });
+  });*/
 
   bot.startConversation(message, function(err, convo) {
     convo.say(
@@ -302,7 +302,7 @@ controller.hears(
 );
 
 controller.hears(
-  ['show daily budget'],
+  ['show daily budget', 'daily budget', 'budget'],
   'message_received',
   async (bot, message) => {
     try {
@@ -334,5 +334,15 @@ controller.hears(
       console.error(e);
     }
     console.log('out daily');
+  }
+);
+
+controller.hears(
+  ['Show goal', 'Goal'],
+  'message_received',
+  async (bot, message) => {
+    controller.storage.users.get(message.user, (err, user) => {
+      bot.reply(message, `Your goal is to save ${user.goal}€ this month 💪`);
+    });
   }
 );
